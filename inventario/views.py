@@ -1,9 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .models import Categoria
 from .models import Producto
 from .forms import ProductoForm
+from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from .serializers import CategoriaSerializer, ReporteProductosSerializer
+from .serializers import ProductoSerializer
+from rest_framework import generics
+from rest_framework.decorators import api_view
 
 
 def index(request):
@@ -47,3 +52,55 @@ def productoFormView(request):
         form.save()
 
     return render(request, "form_productos.html", { "form": form })
+
+
+class CategoriaViewSet(viewsets.ModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+
+
+class CategoriaCreateView(generics.CreateAPIView, generics.ListAPIView):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+
+@api_view(["GET"])
+def categoria_count(request):
+    try:
+        cantidad = Categoria.objects.count()
+        return JsonResponse(
+                {
+                    "cantidad": cantidad
+                },
+                safe=False,
+                status=200
+            )
+    except Exception as e:
+        return JsonResponse({"mensaje": str(e)}, status=400)
+
+@api_view(["GET"])
+def producto_en_unidades(request):
+    try:
+        productos = Producto.objects.filter(unidades="u")
+        return JsonResponse(
+            ProductoSerializer(productos, many=True).data,
+            safe=False,
+            status=200
+        )
+    except Exception as e:
+        return JsonResponse({"mensaje": str(e)}, status=400)
+
+@api_view(["GET"])
+def reporte_productos(request):
+    try:
+        productos = Producto.objects.filter(unidades="u")
+        cantidad = productos.count()
+        return JsonResponse(
+            ReporteProductosSerializer({
+                "cantidad": cantidad,
+                "productos": productos
+            }).data,
+            safe=False,
+            status=200
+        )
+    except Exception as e:
+        return JsonResponse({"mensaje": str(e)}, status=400)

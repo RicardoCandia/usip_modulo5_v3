@@ -1,10 +1,11 @@
 from django.db import models
 from .validators import validate_par
+from .validators import validation_categoria
 from django.core.validators import EmailValidator
 
 
 class Categoria(models.Model):
-    nombre = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=50, validators=[validation_categoria,])
 
     def __str__(self):
         return self.nombre
