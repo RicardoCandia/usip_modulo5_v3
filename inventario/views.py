@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from .models import Categoria
@@ -7,8 +8,13 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from .serializers import CategoriaSerializer, ReporteProductosSerializer
 from .serializers import ProductoSerializer
+from .serializers import ContactSerializer
 from rest_framework import generics
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import permission_classes
+from .permissions import IsUserAlmacen
+from .utils import permission_required
 
 
 def index(request):
@@ -104,3 +110,18 @@ def reporte_productos(request):
         )
     except Exception as e:
         return JsonResponse({"mensaje": str(e)}, status=400)
+
+
+logger = logging.getLogger(__name__)
+
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+# @permission_classes([IsUserAlmacen])
+@permission_required(["inventario.reporte_detalle"])
+def enviar_mensaje(request):
+    cs = ContactSerializer(data=request.data)
+    if cs.is_valid():
+        logger.error("Mensaje erroneo")
+        return JsonResponse({"mensaje": "Mensaje enviado correctamente"}, status=200)
+    else:
+        return JsonResponse({"mensaje": cs.errors}, status=400)

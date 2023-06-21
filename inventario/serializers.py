@@ -1,6 +1,8 @@
+from inventario import validators
 from rest_framework import serializers
 from .models import Categoria
 from .models import Producto
+from .validators import validar_nombre
 
 
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -19,5 +21,5 @@ class ReporteProductosSerializer(serializers.Serializer):
 
 class ContactSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    subject = serializers.CharField(max_length=200)
-    body = serializers.CharField(max_length=500)
+    subject = serializers.CharField(max_length=100, validators=[validar_nombre])
+    body = serializers.CharField(max_length=255)

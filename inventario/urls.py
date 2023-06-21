@@ -15,5 +15,6 @@ urlpatterns = [
     path("productos/filtrar/unidades", views.producto_en_unidades),
     path("reporte/productos", views.reporte_productos),
     path("categorias_crear_listar", views.CategoriaCreateView.as_view(), name="categorias_crear"),
+    path("enviar/mensaje", views.enviar_mensaje),
     path("", include(router.urls)),
 ]
